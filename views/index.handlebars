@@ -1,0 +1,25 @@
+
+<h1 style="color: blue; /* Azul */
+           font-size: 24px;
+           text-align: center;">Listado de productos</h1>
+<ul>
+    {{#each productos}}
+       <li style="list-style-type: none; /* Quita los puntos de la lista */
+           margin-bottom: 20px; /* Espacio entre elementos */
+           border: 1px solid #ccc; /* Borde alrededor del elemento */
+           padding: 10px; /* Espacio interior del elemento */
+           border-radius: 10px; /* Borde redondeado */
+           box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Sombra */
+           background-color: #f9f9f9; /* Color de fondo */
+           text-align: center; /* Centrar el contenido */
+           ">
+    <strong style="color: #555;">Nombre:</strong> {{nombre}}<br>
+    <strong style="color: #555;">Precio:</strong> ${{precio}}<br>
+    <strong style="color: #555;">Stock:</strong> {{stock}} unidades<br>
+    <strong style="color: #555;">Calidad:</strong> {{calidad}}
+</li>
+
+
+
+    {{/each}}
+</ul>

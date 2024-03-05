@@ -1,0 +1,99 @@
+
+<h1 style="color: blue; /* Azul */
+           font-size: 24px;
+           text-align: center;">Listado de productos en tiempo real</h1>
+<ul id="productList">
+    {{#each productos}}
+       <li id="product_{{@index}}" style="margin-bottom: 10px; text-align: center;">
+    <span style="font-weight: bold;">Nombre:</span> {{this.nombre}} - 
+    <span style="font-weight: bold;">Precio:</span> {{this.precio}}, 
+    <span style="font-weight: bold;">Stock:</span> {{this.stock}} unidades, 
+    <span style="font-weight: bold;">Calidad:</span> {{this.calidad}}
+    <button style="background-color: #d63434; /* Rojo */
+                   border: none;
+                   color: white;
+                   padding: 10px 20px;
+                   text-align: center;
+                   text-decoration: none;
+                   display: inline-block;
+                   font-size: 14px;
+                   margin-left: 10px;
+                   cursor: pointer;border-radius: 10px;"
+            class="deleteProduct" data-product-id="{{@index}}">Eliminar</button>
+</li>
+
+
+    {{/each}}
+</ul>
+
+<form style="background-color: #f2f2f2; /* Gris claro */
+             padding: 20px;
+             border-radius: 10px;
+             text-align: center;" id="productForm">
+    <input type="text" name="productName" placeholder="Nombre del producto">
+    <input type="number" name="productPrice" placeholder="Precio del producto">
+    <input type="number" name="productStock" placeholder="Stock del producto">
+    <input type="text" name="productQuality" placeholder="Calidad del producto">
+    <button style="background-color: #4CAF50; /* Verde */
+                border: none;
+                color: white;
+                padding: 15px 32px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 16px;
+                margin: 4px 2px;
+                cursor: pointer;
+                border-radius: 10px;" type="submit">Agregar Producto</button>
+</form>
+
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    let socket = io();
+
+    document.getElementById('productForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        let productName = document.querySelector('input[name="productName"]').value;
+        let productPrice = document.querySelector('input[name="productPrice"]').value;
+        let productStock = document.querySelector('input[name="productStock"]').value;
+        let productQuality = document.querySelector('input[name="productQuality"]').value;
+        
+        let newProduct = {
+            nombre: productName,
+            precio: parseFloat(productPrice),
+            stock: parseInt(productStock),
+            calidad: productQuality
+        };
+        
+        socket.emit('addProduct', newProduct);
+        this.reset();
+    });
+
+    document.querySelectorAll('.deleteProduct').forEach(button => {
+        button.addEventListener('click', function() {
+            let productId = this.getAttribute('data-product-id');
+            socket.emit('deleteProduct', productId);
+        });
+    });
+
+    socket.on('productAdded', function(product) {
+        let productList = document.getElementById('productList');
+        let newItem = document.createElement('li');
+        newItem.id = 'product_' + product.index;
+        newItem.textContent = product.nombre + ' - Precio: ' + product.precio + ', Stock: ' + product.stock + ', Calidad: ' + product.calidad;
+        let deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Eliminar';
+        deleteButton.classList.add('deleteProduct');
+        deleteButton.dataset.productId = product.index;
+        newItem.appendChild(deleteButton);
+        productList.appendChild(newItem);
+    });
+
+    socket.on('productDeleted', function(productId) {
+        let productElement = document.getElementById('product_' + productId);
+        if (productElement) {
+            productElement.remove();
+        }
+    });
+</script>
